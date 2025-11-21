@@ -161,31 +161,28 @@ class BookState(rx.State):
             self._update_public_list()
         self.is_loading = False
 
-    @rx.event(background=True)
-    async def load_book(self):
-        async with self:
-            self.is_loading = True
-            self.current_book = None
-            if not self._books_db:
-                self._generate_mock_data()
-            else:
-                self._update_public_list()
-        await asyncio.sleep(0.3)
-        async with self:
-            params = self.router.page.params
-            book_id = params.get("id")
-            if isinstance(book_id, list):
-                book_id = book_id[0] if book_id else ""
-            if not book_id:
-                path = self.router.page.path
-                if "/book/" in path:
-                    parts = path.split("/book/")
-                    if len(parts) > 1:
-                        book_id = parts[1].split("/")[0]
-            book_id = str(book_id) if book_id else ""
-            self.current_book = self._books_db.get(book_id)
-            self.reading_progress = 0
-            self.is_loading = False
+    @rx.event
+    def load_book(self):
+        self.is_loading = True
+        self.current_book = None
+        if not self._books_db:
+            self._generate_mock_data()
+        else:
+            self._update_public_list()
+        params = self.router.page.params
+        book_id = params.get("id")
+        if isinstance(book_id, list):
+            book_id = book_id[0] if book_id else ""
+        if not book_id:
+            path = self.router.page.path
+            if "/book/" in path:
+                parts = path.split("/book/")
+                if len(parts) > 1:
+                    book_id = parts[1].split("/")[0]
+        book_id = str(book_id) if book_id else ""
+        self.current_book = self._books_db.get(book_id)
+        self.reading_progress = 0
+        self.is_loading = False
 
     @rx.event
     def set_active_section(self, section_id: str):
