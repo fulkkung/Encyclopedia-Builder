@@ -105,6 +105,48 @@ class BookState(rx.State):
                 ),
             ],
         )
+        self._books_db["2"] = Book(
+            id="2",
+            title="The Art of Clean Code",
+            author="Robert C. Martin",
+            category="Technology",
+            publish_date="Aug 1, 2008",
+            read_time="12 min read",
+            cover_image="https://api.dicebear.com/9.x/shapes/svg?seed=tech",
+            description="Even bad code can function. But if code isn't clean, it can bring a development organization to its knees.",
+            chapters=[
+                Chapter(
+                    id="ch1",
+                    title="Clean Code",
+                    content=f"Code is clean if it can be understood easily. {lorem}",
+                    read_time="3 min",
+                ),
+                Chapter(
+                    id="ch2",
+                    title="Meaningful Names",
+                    content=f"Names are everywhere in software. {lorem}",
+                    read_time="4 min",
+                ),
+            ],
+        )
+        self._books_db["3"] = Book(
+            id="3",
+            title="Space Exploration History",
+            author="Dr. Neil Tyson",
+            category="Science",
+            publish_date="Jan 15, 2022",
+            read_time="25 min read",
+            cover_image="https://api.dicebear.com/9.x/shapes/svg?seed=science",
+            description="A journey through the history of human spaceflight, from Vostok to Mars.",
+            chapters=[
+                Chapter(
+                    id="ch1",
+                    title="The Early Years",
+                    content=f"It started with a dream. {lorem}",
+                    read_time="5 min",
+                )
+            ],
+        )
         self._update_public_list()
 
     def _update_public_list(self):
@@ -131,7 +173,7 @@ class BookState(rx.State):
         await asyncio.sleep(0.3)
         async with self:
             params = self.router.page.params
-            book_id = params.get("id", "")
+            book_id = params.get("id")
             if isinstance(book_id, list):
                 book_id = book_id[0] if book_id else ""
             if not book_id:
@@ -140,6 +182,7 @@ class BookState(rx.State):
                     parts = path.split("/book/")
                     if len(parts) > 1:
                         book_id = parts[1].split("/")[0]
+            book_id = str(book_id) if book_id else ""
             self.current_book = self._books_db.get(book_id)
             self.reading_progress = 0
             self.is_loading = False
